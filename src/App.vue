@@ -1,26 +1,285 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="container">
+    <vue-toastification />
+    <div class="form-group">
+      <label>SPC</label>
+      <select class="selectcustom" @change="setSelectedSpc">
+        <option value="" hidden>Select SPC</option>
+        <option v-for="item in spc" :key="item" :value="item">{{ item }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>SA</label>
+      <select class="selectcustom" @change="setSelectedSa">
+        <option value="" hidden>Select SA</option>
+        <option v-for="item in sa" :key="item" :value="item">{{ item }}</option>
+      </select>
+    </div>
+    <div v-for="day in daysInMonthArray" :key="day" class="formgroup">
+      <h3>------ {{ day.toString().padStart(2, '0') }} {{ new Date().toLocaleString('default', { month: 'long' }) }} {{ new Date().getFullYear() }} ------</h3>
+      <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group">
+        <input type="text" :value="entry.date" hidden />
+        <input type="text" :value="entry.no" hidden />
+        <select class="selectcustom" @change="handleStoreChange(day, index, $event)">
+          <option value="" hidden>Select Store</option>
+          <option v-for="item in store" :key="item" :value="item">{{ item }}</option>
+        </select>
+        <select class="selectcustom" @change="handleScheduleChange(day, index, $event)" :hidden="entry.store === ''">
+          <option value="" hidden>Select Schedule</option>
+          <option value="P">P</option>
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="OFF">OFF</option>
+          <option value="INV">INV</option>
+        </select>
+        <select class="selectcustom" @change="handleMasukChange(day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
+          <option value="" hidden>Select Masuk</option>
+          <option value="6:00">6:00</option>
+          <option value="7:00">7:00</option>
+          <option value="8:00">8:00</option>
+          <option value="9:00">9:00</option>
+          <option value="10:00">10:00</option>
+          <option value="11:00">11:00</option>
+          <option value="12:00">12:00</option>
+          <option value="13:00">13:00</option>
+          <option value="14:00">14:00</option>
+        </select>
+        <select class="selectcustom" @change="handlePulangChange(day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
+          <option value="" hidden>Select Pulang</option>
+          <option value="14:00">14:00</option>
+          <option value="15:00">15:00</option>
+          <option value="16:00">16:00</option>
+          <option value="17:00">17:00</option>
+          <option value="18:00">18:00</option>
+          <option value="19:00">19:00</option>
+          <option value="20:00">20:00</option>
+          <option value="21:00">21:00</option>
+          <option value="22:00">22:00</option>
+        </select>
+        <button class="removeButton" @click="handleDelete(day, index)">X</button>
+      </div>
+      <button class="addButton" @click="addEntry(day)">+</button>
+    </div>
+    <button class="submitButton" @click="handleSubmit">Submit</button>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { createClient } from '@supabase/supabase-js';
+import { useToast } from 'vue-toastification';
+
+const supabase = createClient(process.env.VUE_APP_SUPABASE_URL, process.env.VUE_APP_SUPABASE_ANON_KEY);
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  data() {
+    return {
+      spc: [],
+      sa: [],
+      store: [],
+      selectedSpc: '',
+      selectedSa: '',
+      entries: [],
+      daysInMonth: 0,
+    };
+  },
+  computed: {
+    daysInMonthArray() {
+      return Array.from({ length: this.daysInMonth }, (_, i) => i + 1);
+    },
+  },
+  mounted() {
+    this.fetchSpc();
+    this.calculateDaysInMonth();
+  },
+  watch: {
+    selectedSpc(newVal) {
+      if (newVal) {
+        this.fetchSa(newVal);
+      }
+    },
+    selectedSa(newVal) {
+      if (newVal) {
+        this.fetchStore(newVal);
+      }
+    },
+  },
+  methods: {
+    async fetchSpc() {
+      const { data } = await supabase.from('db_spc').select('subRegionName');
+      if (data) {
+        this.spc = data.map(item => item.subRegionName);
+      }
+    },
+    async fetchSa(spc) {
+      const { data } = await supabase.from('db_sa').select('sub2RegionName').eq('subRegionName', spc);
+      if (data) {
+        this.sa = data.map(item => item.sub2RegionName);
+      }
+    },
+    async fetchStore(sa) {
+      const { data } = await supabase.from('db_consignment').select('destinationName').eq('sub2RegionName', sa);
+      if (data) {
+        this.store = data.map(item => item.destinationName);
+      }
+    },
+    calculateDaysInMonth() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const daysInMonth = new Date(year, month, 0).getDate();
+      this.daysInMonth = daysInMonth;
+    },
+    addEntry(day) {
+      const newEntry = {
+        day,
+        date: `${day.toString().padStart(2, '0')}/${(new Date().getMonth() + 1).toString().padStart(2, '0')}/${new Date().getFullYear()}`,
+        no: this.entries.filter(e => e.day === day).length + 1,
+        store: '',
+        schedule: '',
+        masuk: '',
+        pulang: '',
+      };
+      this.entries.push(newEntry);
+    },
+    handleScheduleChange(day, index, event) {
+      const value = event.target.value;
+      this.entries = this.entries.map(entry => {
+        if (entry.day === day && entry.no === index + 1) {
+          return { ...entry, schedule: value, masuk: value === 'OFF' ? 'OFF' : entry.masuk, pulang: value === 'OFF' ? 'OFF' : entry.pulang };
+        }
+        return entry;
+      });
+    },
+    handleMasukChange(day, index, event) {
+      const value = event.target.value;
+      this.entries = this.entries.map(entry => {
+        if (entry.day === day && entry.no === index + 1) {
+          return { ...entry, masuk: value };
+        }
+        return entry;
+      });
+    },
+    handlePulangChange(day, index, event) {
+      const value = event.target.value;
+      this.entries = this.entries.map(entry => {
+        if (entry.day === day && entry.no === index + 1) {
+          return { ...entry, pulang: value };
+        }
+        return entry;
+      });
+    },
+    handleStoreChange(day, index, event) {
+      const value = event.target.value;
+      this.entries = this.entries.map(entry => {
+        if (entry.day === day && entry.no === index + 1) {
+          return { ...entry, store: value };
+        }
+        return entry;
+      });
+    },
+    handleDelete(day, index) {
+      this.entries = this.entries.filter(entry => !(entry.day === day && entry.no === index + 1));
+    },
+    handleSubmit() {
+      const missingDays = [];
+      for (let day = 1; day <= this.daysInMonth; day++) {
+        if (!this.entries.some(entry => entry.day === day)) {
+          missingDays.push(day);
+        }
+      }
+
+      if (missingDays.length > 0) {
+        missingDays.forEach(day => {
+          useToast().error(`Tanggal ${day.toString().padStart(2, '0')} belum diisi`);
+        });
+      } else {
+        const csvContent = 'data:text/csv;charset=utf-8,' + this.entries.map(e => Object.values(e).join(',')).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'data.csv');
+        document.body.appendChild(link);
+        link.click();
+      }
+    },
+    setSelectedSpc(event) {
+      this.selectedSpc = event.target.value;
+    },
+    setSelectedSa(event) {
+      this.selectedSa = event.target.value;
+    },
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style scoped>
+.container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.selectcustom {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.formgroup {
+  margin-bottom: 20px;
+}
+
+.entry-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.addButton, .removeButton, .submitButton {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.addButton, .submitButton {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.addButton:hover, .submitButton:hover {
+  background-color: #0056b3;
+}
+
+.removeButton {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.removeButton:hover {
+  background-color: #c82333;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 15px;
+  }
+
+  .selectcustom {
+    font-size: 14px;
+  }
+
+  .addButton, .removeButton, .submitButton {
+    font-size: 14px;
+  }
 }
 </style>
