@@ -269,7 +269,7 @@ export default {
 
 .addButton, .removeButton {
   margin-top: 5px;
-  margin-top: 5px;
+  margin-bottom: 5px;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
