@@ -223,6 +223,32 @@ export default {
   margin-bottom: 20px;
 }
 
+.submitButton {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 12px 24px;
+  background-color: #007bff; /* Warna biru Fluent UI */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000; /* Pastikan tombol di atas elemen lain */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Segoe UI'; /* Font Fluent UI */
+}
+
+.submitButton:hover {
+  background-color: #0056b3; /* Warna biru lebih gelap saat hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.submitButton:active {
+  background-color: #004578; /* Warna biru lebih gelap saat aktif */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .selectcustom {
   width: 100%;
   padding: 10px;
@@ -242,7 +268,7 @@ export default {
   gap: 10px;
 }
 
-.addButton, .removeButton, .submitButton {
+.addButton, .removeButton {
   margin-top: 10px;
   padding: 10px 20px;
   border: none;
@@ -251,12 +277,12 @@ export default {
   font-size: 16px;
 }
 
-.addButton, .submitButton {
+.addButton {
   background-color: #007bff;
   color: #fff;
 }
 
-.addButton:hover, .submitButton:hover {
+.addButton:hover {
   background-color: #0056b3;
 }
 
@@ -278,7 +304,7 @@ export default {
     font-size: 14px;
   }
 
-  .addButton, .removeButton, .submitButton {
+  .addButton, .removeButton {
     font-size: 14px;
   }
 }
