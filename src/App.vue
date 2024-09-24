@@ -16,7 +16,7 @@
       </select>
     </div>
     <div v-for="day in daysInMonthArray" :key="day" class="formgroup">
-      <h3>------ {{ day.toString().padStart(2, '0') }} {{ new Date().toLocaleString('default', { month: 'long' }) }} {{ new Date().getFullYear() }} ------</h3>
+      <div> {{ day.toString().padStart(2, '0') }} {{ new Date().toLocaleString('default', { month: 'long' }) }} {{ new Date().getFullYear() }} </div>
       <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group">
         <input type="text" :value="entry.date" hidden />
         <input type="text" :value="entry.no" hidden />
@@ -252,7 +252,6 @@ export default {
 .selectcustom {
   width: 100%;
   padding: 10px;
-  margin: 10px 0;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
@@ -269,7 +268,8 @@ export default {
 }
 
 .addButton, .removeButton {
-  margin-top: 10px;
+  margin-top: 5px;
+  margin-top: 5px;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
