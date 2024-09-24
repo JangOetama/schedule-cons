@@ -287,6 +287,7 @@ export default {
 }
 
 .removeButton {
+  margin-bottom: 10px;
   background-color: #dc3545;
   color: #fff;
 }
@@ -301,6 +302,8 @@ export default {
   }
 
   .selectcustom {
+    
+  margin-top: 5px;
     font-size: 14px;
   }
 
