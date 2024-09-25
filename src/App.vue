@@ -203,13 +203,16 @@ export default {
       });
     }
       } else {
-        const csvContent = 'data:text/csv;charset=utf-8,' + this.entries.map(e => Object.values(e).join(',')).join('\n');
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'data.csv');
-        document.body.appendChild(link);
-        link.click();
+        const csvContent = 'data:text/csv;charset=utf-8,' +
+      `SPC\n${this.selectedSpc}\nSA\n${this.selectedSa}\nNo.,Date,Number,Store,Schedule,Masuk,Pulang\n` +
+      this.entries.map(e => Object.values(e).join(',')).join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'data.csv');
+    document.body.appendChild(link);
+    link.click();
       }
     },
     setSelectedSpc(event) {
