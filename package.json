@@ -14,7 +14,8 @@
     "roboto-fontface": "*",
     "vue": "^3.2.13",
     "vue-toastification": "^2.0.0-rc.5",
-    "webfontloader": "^1.6.28"
+    "webfontloader": "^1.6.28",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

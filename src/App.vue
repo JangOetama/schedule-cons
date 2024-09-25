@@ -58,7 +58,7 @@
         </select>
         <button class="removeButton" @click="removeEntry(day, index)">X</button>
       </div>
-      <button class="addButton" @click="addEntry(day)">+</button>
+      <button class="addButton" @click="addEntry(day)" >+</button>
     </div>
     <button class="submitButton" @click="handleSubmit()">Submit</button>
   </div>
@@ -208,17 +208,20 @@ export default {
           });
         }
       } else {
-        const csvContent = 'data:text/csv;charset=utf-8,' +
-          `SPC\n${this.selectedSpc}\nSA\n${this.selectedSa}\nNo.,Date,Number,Store,Schedule,Masuk,Pulang\n` +
-          this.entries.map(e => Object.values(e).join(',')).join('\n');
+  const csvContent = `SPC,${this.selectedSpc}\nSA,${this.selectedSa}\n\nNo.,Date,Number,Store,Schedule,Masuk,Pulang\n` +
+    this.entries.map(e => Object.values(e).join(',')).join('\n');
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', this.selectedSa + ' ' + this.nextMonthName + '.csv');
-        document.body.appendChild(link);
-        link.click();
-      }
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `${this.selectedSa} ${this.nextMonthName}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
     },
     setSelectedSpc(event) {
       this.selectedSpc = event.target.value;
