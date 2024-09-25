@@ -16,7 +16,7 @@
       </select>
     </div>
     <div v-for="day in daysInMonthArray" :key="day" class="formgroup">
-      <div> {{ day.toString().padStart(2, '0') }} {{ new Date().toLocaleString('default', { month: 'long' }) }} {{ new Date().getFullYear() }} </div>
+      <div> {{ day.toString().padStart(2, '0') }} {{ nextMonthName }} {{ nextYear }} </div>
       <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group">
         <input type="text" :value="entry.date" hidden />
         <input type="text" :value="entry.no" hidden />
@@ -79,6 +79,8 @@ export default {
       selectedSa: '',
       entries: [],
       daysInMonth: 0,
+      nextMonthName: '',
+      nextYear: 0,
     };
   },
   computed: {
@@ -88,7 +90,7 @@ export default {
   },
   mounted() {
     this.fetchSpc();
-    this.calculateDaysInMonth();
+    this.calculateDaysInNextMonth();
   },
   watch: {
     selectedSpc(newVal) {
@@ -121,17 +123,21 @@ export default {
         this.store = data.map(item => item.destinationName);
       }
     },
-    calculateDaysInMonth() {
+    calculateDaysInNextMonth() {
       const now = new Date();
       const year = now.getFullYear();
-      const month = now.getMonth() + 1;
-      const daysInMonth = new Date(year, month, 0).getDate();
+      const month = now.getMonth() + 1; // Bulan saat ini
+      const nextMonth = month + 1; // Bulan berikutnya
+      const nextYear = nextMonth > 12 ? year + 1 : year;
+      const daysInMonth = new Date(nextYear, nextMonth, 0).getDate();
       this.daysInMonth = daysInMonth;
+      this.nextMonthName = new Date(nextYear, nextMonth - 1, 1).toLocaleString('default', { month: 'long' });
+      this.nextYear = nextYear;
     },
     addEntry(day) {
       const newEntry = {
         day,
-        date: `${day.toString().padStart(2, '0')}/${(new Date().getMonth() + 1).toString().padStart(2, '0')}/${new Date().getFullYear()}`,
+        date: `${day.toString().padStart(2, '0')}/${(new Date().getMonth() + 2).toString().padStart(2, '0')}/${this.nextYear}`,
         no: this.entries.filter(e => e.day === day).length + 1,
         store: '',
         schedule: '',
@@ -181,38 +187,37 @@ export default {
         return !(entry.day === day && entryIndex === index);
       });
     },
-    
     handleSubmit() {
       const missingDays = [];
-  for (let day = 1; day <= this.daysInMonth; day++) {
-    if (!this.entries.some(entry => entry.day === day)) {
-      missingDays.push(day);
-    }
-  }
-
-  if (missingDays.length > 0) {
-    const missingDaysMessage = `Tanggal yang masih kosong: ${missingDays.join(', ')}`;
-
-    if (Notification.permission === 'granted') {
-      new Notification(missingDaysMessage);
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          new Notification(missingDaysMessage);
+      for (let day = 1; day <= this.daysInMonth; day++) {
+        if (!this.entries.some(entry => entry.day === day)) {
+          missingDays.push(day);
         }
-      });
-    }
+      }
+
+      if (missingDays.length > 0) {
+        const missingDaysMessage = `Tanggal yang masih kosong: ${missingDays.join(', ')}`;
+
+        if (Notification.permission === 'granted') {
+          new Notification(missingDaysMessage);
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              new Notification(missingDaysMessage);
+            }
+          });
+        }
       } else {
         const csvContent = 'data:text/csv;charset=utf-8,' +
-      `SPC\n${this.selectedSpc}\nSA\n${this.selectedSa}\nNo.,Date,Number,Store,Schedule,Masuk,Pulang\n` +
-      this.entries.map(e => Object.values(e).join(',')).join('\n');
+          `SPC\n${this.selectedSpc}\nSA\n${this.selectedSa}\nNo.,Date,Number,Store,Schedule,Masuk,Pulang\n` +
+          this.entries.map(e => Object.values(e).join(',')).join('\n');
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'data.csv');
-    document.body.appendChild(link);
-    link.click();
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', 'data.csv');
+        document.body.appendChild(link);
+        link.click();
       }
     },
     setSelectedSpc(event) {
@@ -315,8 +320,7 @@ export default {
   }
 
   .selectcustom {
-    
-  margin-top: 5px;
+    margin-top: 5px;
     font-size: 14px;
   }
 
