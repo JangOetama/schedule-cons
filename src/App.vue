@@ -20,11 +20,11 @@
       <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group">
         <input type="text" :value="entry.date" hidden />
         <input type="text" :value="entry.no" hidden />
-        <select class="selectcustom" @change="handleStoreChange(day, index, $event)">
+        <select class="selectcustom" @change="handleStoreChange(entry.day, index, $event)">
           <option value="" hidden>Select Store</option>
           <option v-for="item in store" :key="item" :value="item">{{ item }}</option>
         </select>
-        <select class="selectcustom" @change="handleScheduleChange(day, index, $event)" :hidden="entry.store === ''">
+        <select class="selectcustom" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === ''">
           <option value="" hidden>Select Schedule</option>
           <option value="P">P</option>
           <option value="S">S</option>
@@ -32,7 +32,7 @@
           <option value="OFF">OFF</option>
           <option value="INV">INV</option>
         </select>
-        <select class="selectcustom" @change="handleMasukChange(day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
+        <select class="selectcustom" @change="handleMasukChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
           <option value="" hidden>Select Masuk</option>
           <option value="6:00">6:00</option>
           <option value="7:00">7:00</option>
@@ -44,7 +44,7 @@
           <option value="13:00">13:00</option>
           <option value="14:00">14:00</option>
         </select>
-        <select class="selectcustom" @change="handlePulangChange(day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
+        <select class="selectcustom" @change="handlePulangChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
           <option value="" hidden>Select Pulang</option>
           <option value="14:00">14:00</option>
           <option value="15:00">15:00</option>
@@ -56,7 +56,7 @@
           <option value="21:00">21:00</option>
           <option value="22:00">22:00</option>
         </select>
-        <button class="removeButton" @click="handleDelete(day, index)">X</button>
+        <button class="removeButton" @click="removeEntry(day, index)">X</button>
       </div>
       <button class="addButton" @click="addEntry(day)">+</button>
     </div>
@@ -66,7 +66,6 @@
 
 <script>
 import { createClient } from '@supabase/supabase-js';
-import { useToast } from 'vue-toastification';
 
 const supabase = createClient(process.env.VUE_APP_SUPABASE_URL, process.env.VUE_APP_SUPABASE_ANON_KEY);
 
@@ -177,21 +176,32 @@ export default {
         return entry;
       });
     },
-    handleDelete(day, index) {
-      this.entries = this.entries.filter(entry => !(entry.day === day && entry.no === index + 1));
+    removeEntry(day, index) {
+      this.entries = this.entries.filter((entry, entryIndex) => {
+        return !(entry.day === day && entryIndex === index);
+      });
     },
+    
     handleSubmit() {
       const missingDays = [];
-      for (let day = 1; day <= this.daysInMonth; day++) {
-        if (!this.entries.some(entry => entry.day === day)) {
-          missingDays.push(day);
-        }
-      }
+  for (let day = 1; day <= this.daysInMonth; day++) {
+    if (!this.entries.some(entry => entry.day === day)) {
+      missingDays.push(day);
+    }
+  }
 
-      if (missingDays.length > 0) {
-        missingDays.forEach(day => {
-          useToast().error(`Tanggal ${day.toString().padStart(2, '0')} belum diisi`);
-        });
+  if (missingDays.length > 0) {
+    const missingDaysMessage = `Tanggal yang masih kosong: ${missingDays.join(', ')}`;
+
+    if (Notification.permission === 'granted') {
+      new Notification(missingDaysMessage);
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification(missingDaysMessage);
+        }
+      });
+    }
       } else {
         const csvContent = 'data:text/csv;charset=utf-8,' + this.entries.map(e => Object.values(e).join(',')).join('\n');
         const encodedUri = encodeURI(csvContent);
@@ -226,7 +236,7 @@ export default {
 .submitButton {
   position: fixed;
   bottom: 20px;
-  left: 20px;
+  right: 20px;
   padding: 12px 24px;
   background-color: #007bff; /* Warna biru Fluent UI */
   color: white;
