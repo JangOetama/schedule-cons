@@ -60,7 +60,7 @@
       </div>
       <button class="addButton" @click="addEntry(day)">+</button>
     </div>
-    <button class="submitButton" @click="handleSubmit">Submit</button>
+    <button class="submitButton" @click="handleSubmit()">Submit</button>
   </div>
 </template>
 
@@ -215,7 +215,7 @@ export default {
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement('a');
         link.setAttribute('href', encodedUri);
-        link.setAttribute('download', 'data.csv');
+        link.setAttribute('download', this.selectedSa + ' ' + this.nextMonthName + '.csv');
         document.body.appendChild(link);
         link.click();
       }
