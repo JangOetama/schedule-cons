@@ -10,10 +10,13 @@
   "dependencies": {
     "@mdi/font": "5.9.55",
     "@supabase/supabase-js": "^2.45.4",
+    "axios": "^1.7.7",
     "core-js": "^3.8.3",
     "roboto-fontface": "*",
-    "vue": "^3.2.13",
+    "vue-router": "^4.4.5",
     "vue-toastification": "^2.0.0-rc.5",
+    "vuesax": "^4.0.1-alpha.25",
+    "vuex": "^4.1.0",
     "webfontloader": "^1.6.28",
     "xlsx": "^0.18.5"
   },
@@ -23,7 +26,6 @@
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "vue-cli-plugin-vuetify": "~2.5.8",
     "webpack-plugin-vuetify": "^2.0.0-alpha.0"
