@@ -118,6 +118,11 @@
     },
 
     methods: {
+
+      showToast() {
+        this.$notify("Hello user!");
+    },
+
       async fetchSa() {
   const { data, error } = await supabase
     .from('db_sa')
@@ -217,16 +222,11 @@
   
     if (missingDays.length > 0) {
       const missingDaysMessage = `Tanggal yang masih kosong: ${missingDays.join(', ')}`;
-  
-      if (Notification.permission === 'granted') {
-        new Notification(missingDaysMessage);
-      } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            new Notification(missingDaysMessage);
-          }
-        });
-      }
+      
+
+      
+      this.$notify(missingDaysMessage);
+     
     } else {
       // Hapus tabel yang sudah ada jika ada
       const existingTable = document.querySelector('table');
@@ -265,7 +265,31 @@
   
       // Tambahkan tabel ke halaman web
       document.body.appendChild(table);
-  
+      
+      
+      //insert supabase
+      const entriesWithId = this.entries.map((entry, index) => ({
+      id: index + 1,
+      no: entry.no,
+      sa: entry.sa,
+      date: entry.date,
+      number: entry.number,
+      store: entry.store,
+      schedule: entry.schedule,
+      masuk: entry.masuk,
+      pulang: entry.pulang
+    }));
+
+    supabase
+      .from('db_schedule_sa')
+      .insert(entriesWithId)
+      .then(response => {
+        this.$notify(`Data telah di tambahkan ke Database : ${response}`);
+      })
+      .catch(error => {
+        this.$notify(`Data gagal di tambahkan ke Database : ${error}`);
+      });
+      
       // Buat file CSV
       const csvContent = `SPC,${this.spc}\nSA,${this.sa}\n\nNo.,SA,Date,Number,Store,Schedule,Masuk,Pulang\n` +
         this.entries.map(e => Object.values(e).join(',')).join('\n');
@@ -280,6 +304,7 @@
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      
     }
   },
     },
