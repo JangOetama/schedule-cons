@@ -3,11 +3,11 @@
     <h2>Login</h2>
     <form @submit.prevent="login">
       <div class="entry-group">
-        <label for="username">Username:</label>
-        <input class="labelcustom" type="text" id="username" v-model="username" required />
+        <label for="username"></label>
+        <input class="labelcustom" type="text" id="username"  placeholder="Username" v-model="username" required />
 
-        <label for="password">Password:</label>
-        <input class="labelcustom" type="password" id="password" v-model="password" required />
+        <label for="password"></label>
+        <input class="labelcustom" type="password" id="password"  placeholder="Password"  v-model="password" required />
       </div>
       <button class="addButton" type="submit">Login</button>
     </form>
