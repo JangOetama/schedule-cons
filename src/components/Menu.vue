@@ -15,80 +15,51 @@
     </div>
     <div v-for="day in daysInMonthArray" :key="day" class="form-group">
       <div> {{ day.toString().padStart(2, '0') }} {{ nextMonthName }} {{ nextYear }} </div>
-      <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group">
+      <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group" :id="`entry-${entry.date}-${entry.no}`">
         <input type="text" :value="entry.sa" hidden/>
         <input type="text" :value="entry.date" hidden />
         <input type="text" :value="entry.no" hidden />
-        <select class="selectcustom" @change="handleKondisi(entry.day, index, $event)" >
-          <option value="">Kondisi</option>
-          <option value="Normal">Normal</option>
-          <option value="Perbantuan">Perbantuan</option>
-          <option value="OFF">OFF</option>
-        </select>
-        <input type="text" class="selectcustom" v-if="entry.pilih === 'OFF'" @change="handleKeterangan(entry.day, index, $event)" :value="entry.ket" placeholder="Keterangan" />
-        <select class="selectcustom" @change="handleStoreChange(entry.day, index, $event)" :disabled="entry.pilih === ''" :hidden="entry.pilih === 'OFF'">
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="OFF" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'OFF'" :id="`radio-off-${entry.date}-${entry.no}`" />
+            OFF
+          </label>
+          <label class="radio-label">
+            <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Normal" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Normal'" :id="`radio-normal-${entry.date}-${entry.no}`" />
+            Normal
+          </label>
+          <label class="radio-label">
+            <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Perbantuan" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Perbantuan'" :id="`radio-perbantuan-${entry.date}-${entry.no}`" />
+            Perbantuan
+          </label>
+          <label class="checkbox-label"  :disabled="entry.pilih === 'OFF'">
+            <input type="checkbox" :name="`checkbox-kirim-${entry.date}-${entry.no}`" @change="handleKirimChange(entry.day, index, $event)" :disabled="entry.pilih === '' || entry.pilih === 'OFF'" :id="`checkbox-kirim-${entry.date}-${entry.no}`" /> Kirim Barang
+          </label>
+        </div>
+        <input type="text" :name="`input-keterangan-${entry.date}-${entry.no}`" class="selectcustom" v-if="entry.pilih === 'OFF'" @change="handleKeterangan(entry.day, index, $event)" :value="entry.ket" placeholder="Keterangan" :id="`input-keterangan-${entry.date}-${entry.no}`" />
+        <select class="selectcustom" :name="`select-store-${entry.date}-${entry.no}`" @change="handleStoreChange(entry.day, index, $event)" :disabled="entry.pilih === ''" :hidden="entry.pilih === 'OFF'" :id="`select-store-${entry.date}-${entry.no}`">
           <option value="" hidden>Select Store</option>
           <option v-for="item in store" :key="item" :value="item">{{ item }}</option>
         </select>
-        <select class="selectcustom" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === 'OFF' || entry.store === ''">
+        <select class="selectcustom" :name="`select-schedule-${entry.date}-${entry.no}`" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === 'OFF' || entry.store === ''" :id="`select-schedule-${entry.date}-${entry.no}`">
           <option value="" hidden>Select Schedule</option>
           <option value="P">P</option>
           <option value="S">S</option>
           <option value="M">M</option>
           <option value="INV">INV</option>
         </select>
-        <select class="selectcustom" @change="handleMasukChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
-          <option value="" hidden>Select Masuk</option>
-          <option value="6:00">6:00</option>
-          <option value="6:30">6:30</option>
-          <option value="7:00">7:00</option>
-          <option value="7:30">7:30</option>
-          <option value="8:00">8:00</option>
-          <option value="8:30">8:30</option>
-          <option value="9:00">9:00</option>
-          <option value="9:30">9:30</option>
-          <option value="10:00">10:00</option>
-          <option value="10:30">10:30</option>
-          <option value="11:00">11:00</option>
-          <option value="11:30">11:30</option>
-          <option value="12:00">12:00</option>
-          <option value="12:30">12:30</option>
-          <option value="13:00">13:00</option>
-          <option value="13:30">13:30</option>
-          <option value="14:00">14:00</option>
-          <option value="14:30">14:30</option>
-        </select>
-        <select class="selectcustom" @change="handlePulangChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''">
-          <option value="" hidden>Select Pulang</option>
-          <option value="14:00">14:00</option>
-          <option value="14:30">14:30</option>
-          <option value="15:00">15:00</option>
-          <option value="15:30">15:30</option>
-          <option value="16:00">16:00</option>
-          <option value="16:30">16:30</option>
-          <option value="17:00">17:00</option>
-          <option value="17:30">17:30</option>
-          <option value="18:00">18:00</option>
-          <option value="18:30">18:30</option>
-          <option value="19:00">19:00</option>
-          <option value="19:30">19:30</option>
-          <option value="20:00">20:00</option>
-          <option value="20:30">20:30</option>
-          <option value="21:00">21:00</option>
-          <option value="21:30">21:30</option>
-          <option value="22:00">22:00</option>
-          <option value="22:30">22:30</option>
-        </select>        
-        <label :hidden="entry.pilih === 'OFF'">
-          <input type="checkbox" @change="handleKirimChange(entry.day, index, $event)" :disabled="entry.pilih === ''" :hidden="entry.pilih === 'OFF'" /> Kirim Barang
-        </label>
-        <button class="removeButton" @click="removeEntry(day, index)">X</button>
+        <div class="time-picker-group">
+          <input type="time" class="selectcustom" :name="`time-masuk-${entry.date}-${entry.no}`" @change="handleMasukChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" :id="`time-masuk-${entry.date}-${entry.no}`" />
+          <input type="time" class="selectcustom" :name="`time-pulang-${entry.date}-${entry.no}`" @change="handlePulangChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" :id="`time-pulang-${entry.date}-${entry.no}`" />
+        </div>
+        <button class="removeButton" @click="removeEntry(`*-${entry.date}-${entry.no}`)">X</button>
       </div>
       <button class="addButton" @click="addEntry(day)" :disabled="isAddButtonDisabled(day)">+</button>
     </div>
     <button class="submitButton" @click="handleSubmit()">Submit</button>
   </div>
 </template>
+
 
 <script>
 /* eslint-disable */
@@ -281,11 +252,13 @@ export default {
         return entry;
       });
     },
-    removeEntry(day, index) {
-      this.entries = this.entries.filter((entry, entryIndex) => {
-        return !(entry.day === day && entryIndex === index);
-      });
-    },
+  removeEntry(namePattern) {
+    const regex = new RegExp(`^${namePattern.replace(/\*/g, '.*')}$`);
+    this.entries = this.entries.filter(entry => {
+      const entryName = `entry-${entry.date}-${entry.no}`;
+      return !regex.test(entryName);
+    });
+  },
     isAddButtonDisabled(day) {
       const entriesForDay = this.entries.filter(e => e.day === day);
       return entriesForDay.some(entry =>
@@ -481,6 +454,70 @@ export default {
   background-color: #c82333;
 }
 
+.radio-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"]:checked {
+  border-color: #007bff;
+  background-color: #007bff;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  border-color: #007bff;
+  background-color: #007bff;
+}
+
+.checkbox-label input[type="checkbox"]:checked::after {
+  content: '\2713'; /* Tanda centang */
+  color: white;
+  font-size: 14px;
+  position: relative;
+  left: 3px;
+  top: -2px;
+}
+
+.time-picker-group {
+  display: flex;
+  gap: 10px;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 15px;
@@ -500,5 +537,4 @@ export default {
     font-size: 14px;
   }
 }
-
 </style>

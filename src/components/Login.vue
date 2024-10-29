@@ -1,15 +1,16 @@
 <template>
-  <div class="container">
+  <div class="fluent-container">
     <h2>Login</h2>
     <form @submit.prevent="login">
-      <div class="entry-group">
-        <label for="username"></label>
-        <input class="labelcustom" type="text" id="username"  placeholder="Username" v-model="username" required />
+      <div class="fluent-card">
+        <label class="fluent-label" for="username">Username:</label>
+        <input class="fluent-input" type="text" id="username" v-model="username" required />
 
-        <label for="password"></label>
-        <input class="labelcustom" type="password" id="password"  placeholder="Password"  v-model="password" required />
-      </div>
-      <button class="addButton" type="submit">Login</button>
+        <label class="fluent-label" for="password">Password:</label>
+        <input class="fluent-input" type="password" id="password" v-model="password" required />
+
+      <button class="fluent-button" type="submit">Login</button>
+    </div>
     </form>
     <p v-if="error">{{ error }}</p>
     <p v-if="success">Login successful!</p>
@@ -59,89 +60,120 @@ export default {
 </script>
 
 <style scoped>
-  .container {
-    padding: 20px;
+/* Input */
+.fluent-input {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid #a6a6a6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.fluent-input:hover {
+  border-color: #2b88d8;
+  box-shadow: 0 0 0 1px rgba(43, 136, 216, 0.3);
+}
+
+.fluent-input:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+}
+
+.fluent-input:disabled {
+  background-color: #f3f2f1;
+  color: #a19f9d;
+  cursor: not-allowed;
+}
+
+/* Button */
+.fluent-button {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #0078d4;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fluent-button:hover {
+  background-color: #005a9e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.fluent-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+}
+
+.fluent-button:disabled {
+  background-color: #a19f9d;
+  color: #f3f2f1;
+  cursor: not-allowed;
+}
+
+/* Label */
+.fluent-label {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Container */
+.fluent-container {
+  padding: 20px;
     max-width: 600px;
     margin: 0 auto;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  
-  .selectcustom {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
-  .labelcustom {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  .formgroup {
-    margin-bottom: 20px;
-  }
-  
-  .entry-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  
-  .addButton, .removeButton {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  .addButton {
-    background-color: #007bff;
-    color: #fff;
-  }
-  
-  .addButton:hover {
-    background-color: #0056b3;
-  }
-  
-  .removeButton {
-    margin-bottom: 10px;
-    background-color: #dc3545;
-    color: #fff;
-  }
-  
-  .removeButton:hover {
-    background-color: #c82333;
-  }
-  
-  @media (max-width: 600px) {
-    .container {
-      padding: 15px;
-    }
-  
-    .labelcustom {
-      margin-top: 5px;
-      font-size: 14px;
-    }
+  border: 1px solid #a6a6a6;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-    .selectcustom {
-      margin-top: 5px;
-      font-size: 14px;
-    }
-  
-    .addButton, .removeButton {
-      font-size: 14px;
-    }
-  }
-  
+/* Card */
+.fluent-card {
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid #a6a6a6;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.fluent-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Combobox */
+.combobox {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid #a6a6a6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333"><path d="M4 6l4 4 4-4z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.combobox:hover {
+  border-color: #2b88d8;
+  box-shadow: 0 0 0 1px rgba(43, 136, 216, 0.3);
+}
+
+.combobox:focus {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.3);
+}
+
+.combobox:disabled {
+  background-color: #f3f2f1;
+  color: #a19f9d;
+  cursor: not-allowed;
+}
+
   </style>
