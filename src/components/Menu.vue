@@ -1,65 +1,69 @@
 <template>
   <div class="container">
     <vue-toastification />
-    <div class="form-group">
-      <label>SPC : </label>
-      <label class="labelcustom" v-for="item in spc" :key="item" :value="item">
-        {{ item }}
-      </label>
+    <div v-if="loading" class="loading">
+      <img src="path/to/loading.gif" alt="Loading..." />
     </div>
-    <div class="form-group">
-      <label>SA  : </label>
-      <label class="labelcustom" v-for="item in sa" :key="item" :value="item">
-        {{ item }}
-      </label>
-    </div>
-    <div v-for="day in daysInMonthArray" :key="day" class="form-group">
-      <div> {{ day.toString().padStart(2, '0') }} {{ nextMonthName }} {{ nextYear }} </div>
-      <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group" :id="`entry-${entry.date}-${entry.no}`">
-        <input type="text" :value="entry.sa" hidden/>
-        <input type="text" :value="entry.date" hidden />
-        <input type="text" :value="entry.no" hidden />
-        <div class="radio-group">
-          <label class="radio-label">
-            <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="OFF" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'OFF'" :id="`radio-off-${entry.date}-${entry.no}`" />
-            OFF
-          </label>
-          <label class="radio-label">
-            <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Normal" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Normal'" :id="`radio-normal-${entry.date}-${entry.no}`" />
-            Normal
-          </label>
-          <label class="radio-label">
-            <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Perbantuan" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Perbantuan'" :id="`radio-perbantuan-${entry.date}-${entry.no}`" />
-            Perbantuan
-          </label>
-          <label class="checkbox-label"  :disabled="entry.pilih === 'OFF'">
-            <input type="checkbox" :name="`checkbox-kirim-${entry.date}-${entry.no}`" @change="handleKirimChange(entry.day, index, $event)" :disabled="entry.pilih === '' || entry.pilih === 'OFF'" :id="`checkbox-kirim-${entry.date}-${entry.no}`" /> Kirim Barang
-          </label>
-        </div>
-        <input type="text" :name="`input-keterangan-${entry.date}-${entry.no}`" class="selectcustom" v-if="entry.pilih === 'OFF'" @change="handleKeterangan(entry.day, index, $event)" :value="entry.ket" placeholder="Keterangan" :id="`input-keterangan-${entry.date}-${entry.no}`" />
-        <select class="selectcustom" :name="`select-store-${entry.date}-${entry.no}`" @change="handleStoreChange(entry.day, index, $event)" :disabled="entry.pilih === ''" :hidden="entry.pilih === 'OFF'" :id="`select-store-${entry.date}-${entry.no}`">
-          <option value="" hidden>Select Store</option>
-          <option v-for="item in store" :key="item" :value="item">{{ item }}</option>
-        </select>
-        <select class="selectcustom" :name="`select-schedule-${entry.date}-${entry.no}`" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === 'OFF' || entry.store === ''" :id="`select-schedule-${entry.date}-${entry.no}`">
-          <option value="" hidden>Select Schedule</option>
-          <option value="P">P</option>
-          <option value="S">S</option>
-          <option value="M">M</option>
-          <option value="INV">INV</option>
-        </select>
-        <div class="time-picker-group">
-          <input type="time" class="selectcustom" :name="`time-masuk-${entry.date}-${entry.no}`" @change="handleMasukChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" :id="`time-masuk-${entry.date}-${entry.no}`" />
-          <input type="time" class="selectcustom" :name="`time-pulang-${entry.date}-${entry.no}`" @change="handlePulangChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" :id="`time-pulang-${entry.date}-${entry.no}`" />
-        </div>
-        <button class="removeButton" @click="removeEntry(`*-${entry.date}-${entry.no}`)">X</button>
+    <div v-else>
+      <div class="form-group">
+        <label>SPC : </label>
+        <label class="labelcustom" v-for="item in spc" :key="item" :value="item">
+          {{ item }}
+        </label>
       </div>
-      <button class="addButton" @click="addEntry(day)" :disabled="isAddButtonDisabled(day)">+</button>
+      <div class="form-group">
+        <label>SA  : </label>
+        <label class="labelcustom" v-for="item in sa" :key="item" :value="item">
+          {{ item }}
+        </label>
+      </div>
+      <div v-for="day in daysInMonthArray" :key="day" class="form-group">
+        <div> {{ day.toString().padStart(2, '0') }} {{ nextMonthName }} {{ nextYear }} </div>
+        <div v-for="(entry, index) in entries.filter(e => e.day === day)" :key="index" class="entry-group" :name="`entry-${entry.date}-${entry.no}`">
+          <input type="text" :value="entry.sa" hidden/>
+          <input type="text" :value="entry.date" hidden />
+          <input type="text" :value="entry.no" hidden />
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="OFF" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'OFF'" />
+              OFF
+            </label>
+            <label class="radio-label">
+              <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Normal" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Normal'" />
+              Normal
+            </label>
+            <label class="radio-label">
+              <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Perbantuan" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Perbantuan'" />
+              Perbantuan
+            </label>
+            <label class="checkbox-label"  :disabled="entry.pilih === 'OFF'">
+              <input type="checkbox" :name="`checkbox-kirim-${entry.date}-${entry.no}`" @change="handleKirimChange(entry.day, index, $event)" :disabled="entry.pilih === '' || entry.pilih === 'OFF'" /> Kirim Barang
+            </label>
+          </div>
+          <input type="text" :name="`input-keterangan-${entry.date}-${entry.no}`" class="selectcustom" v-if="entry.pilih === 'OFF'" @change="handleKeterangan(entry.day, index, $event)" :value="entry.ket" placeholder="Keterangan"  />
+          <select class="selectcustom" :name="`select-store-${entry.date}-${entry.no}`" @change="handleStoreChange(entry.day, index, $event)" :disabled="entry.pilih === ''" :hidden="entry.pilih === 'OFF'" >
+            <option value="" hidden>Select Store</option>
+            <option v-for="item in (entry.pilih === 'Normal' ? normalStores : perbantuanStores)" :key="item" :value="item">{{ item }}</option>
+          </select>
+          <select class="selectcustom" :name="`select-schedule-${entry.date}-${entry.no}`" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === 'OFF' || entry.store === ''" >
+            <option value="" hidden>Select Schedule</option>
+            <option value="P">P</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="INV">INV</option>
+          </select>
+          <div class="time-picker-group">
+            <input type="time" class="selectcustom" :name="`time-masuk-${entry.date}-${entry.no}`" @change="handleMasukChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" />
+            <input type="time" class="selectcustom" :name="`time-pulang-${entry.date}-${entry.no}`" @change="handlePulangChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" />
+          </div>
+          <button class="removeButton" @click="removeEntry(`*-${entry.date}-${entry.no}`)">X</button>
+        </div>
+        <button class="addButton" @click="addEntry(day)" :disabled="isAddButtonDisabled(day)">+</button>
+      </div>
+      <button class="submitButton" @click="handleSubmit()">Submit</button>
     </div>
-    <button class="submitButton" @click="handleSubmit()">Submit</button>
   </div>
 </template>
-
 
 <script>
 /* eslint-disable */
@@ -73,11 +77,13 @@ export default {
     return {
       spc: [],
       sa: [],
-      store: [],
+      normalStores: [],
+      perbantuanStores: [],
       entries: [],
       daysInMonth: 0,
       nextMonthName: '',
       nextYear: 0,
+      loading: true,
     };
   },
   computed: {
@@ -128,19 +134,26 @@ export default {
         this.spc = data.map(item => item.subRegionName);
       }
 
-      await this.fetchStore(this.sa, false);
+      await this.fetchStores();
+      this.loading = false;
     },
-    async fetchStore(sa, isPerbantuan) {
-      let query = supabase.from('db_consignment').select('destinationName');
+    async fetchStores() {
+      const { data: normalData } = await supabase
+        .from('db_consignment')
+        .select('destinationName')
+        .eq('sub2RegionName', this.sa);
 
-      if (!isPerbantuan) {
-        query = query.eq('sub2RegionName', sa);
+      const { data: perbantuanData } = await supabase
+        .from('db_consignment')
+        .select('destinationName')
+        .neq('sub2RegionName', this.sa);
+
+      if (normalData) {
+        this.normalStores = normalData.map(item => item.destinationName);
       }
 
-      const { data } = await query;
-
-      if (data) {
-        this.store = data.map(item => item.destinationName);
+      if (perbantuanData) {
+        this.perbantuanStores = perbantuanData.map(item => item.destinationName);
       }
     },
     calculateDaysInNextMonth() {
@@ -185,18 +198,6 @@ export default {
         }
         return entry;
       });
-
-      // Memanggil fetchStore dengan parameter yang sesuai
-      const entry = this.entries.find(e => e.day === day && e.no === index + 1);
-      if (entry) {
-        let isPerbantuan;
-        if (entry.pilih === 'Normal') {
-          isPerbantuan = false;
-        } else if (entry.pilih === 'Perbantuan') {
-          isPerbantuan = true;
-        }
-        await this.fetchStore(entry.sa, isPerbantuan);
-      }
     },
     handleScheduleChange(day, index, event) {
       const value = event.target.value;
@@ -252,13 +253,13 @@ export default {
         return entry;
       });
     },
-  removeEntry(namePattern) {
-    const regex = new RegExp(`^${namePattern.replace(/\*/g, '.*')}$`);
-    this.entries = this.entries.filter(entry => {
-      const entryName = `entry-${entry.date}-${entry.no}`;
-      return !regex.test(entryName);
-    });
-  },
+    removeEntry(namePattern) {
+      const regex = new RegExp(`^${namePattern.replace(/\*/g, '.*')}$`);
+      this.entries = this.entries.filter(entry => {
+        const entryName = `entry-${entry.date}-${entry.no}`;
+        return !regex.test(entryName);
+      });
+    },
     isAddButtonDisabled(day) {
       const entriesForDay = this.entries.filter(e => e.day === day);
       return entriesForDay.some(entry =>
@@ -277,12 +278,6 @@ export default {
         const missingDaysMessage = `Tanggal yang masih kosong: ${missingDays.join(', ')}`;
         this.$notify(missingDaysMessage);
       } else {
-        // Hapus tabel yang sudah ada jika ada
-        const existingTable = document.querySelector('table');
-        if (existingTable) {
-          document.body.removeChild(existingTable);
-        }
-
         // Buat tabel HTML
         const table = document.createElement('table');
         table.border = '1';
@@ -336,25 +331,29 @@ export default {
           .insert(entriesWithId)
           .then(response => {
             this.$notify(`Data telah di tambahkan ke Database : ${response}`);
+
+            // Buat file CSV
+            const csvContent = `SPC,${this.spc}\nSA,${this.sa}\n\nNo.,SA,Transaction,Date,Number,Kondisi,Store,Schedule,Masuk,Pulang,Kirim Barang,Keterangan\n` +
+              this.entries.map(e => Object.values(e).join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${this.sa} ${this.nextMonthName}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            // Tampilkan dialog sukses
+            alert('Data berhasil disubmit ke Supabase. Anda akan dialihkan ke halaman login.');
+            this.$router.push('/');
           })
           .catch(error => {
             this.$notify(`Data gagal di tambahkan ke Database : ${error}`);
           });
-
-        // Buat file CSV
-        const csvContent = `SPC,${this.spc}\nSA,${this.sa}\n\nNo.,SA,Transaction,Date,Number,Kondisi,Store,Schedule,Masuk,Pulang,Kirim Barang,Keterangan\n` +
-          this.entries.map(e => Object.values(e).join(',')).join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-
-        const link = document.createElement('a');
-        link.setAttribute('href', url);
-        link.setAttribute('download', `${this.sa} ${this.nextMonthName}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
       }
     },
   },
@@ -536,5 +535,17 @@ export default {
   .addButton, .removeButton {
     font-size: 14px;
   }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading img {
+  width: 50px;
+  height: 50px;
 }
 </style>
