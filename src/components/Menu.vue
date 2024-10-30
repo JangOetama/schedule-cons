@@ -36,26 +36,26 @@
               <input type="radio" :name="`kondisi-${entry.date}-${entry.no}`" value="Perbantuan" @change="handleKondisi(entry.day, index, $event)" :checked="entry.pilih === 'Perbantuan'" />
               Perbantuan
             </label>
-            <label class="checkbox-label"  :disabled="entry.pilih === 'OFF'">
-              <input type="checkbox" :name="`checkbox-kirim-${entry.date}-${entry.no}`" @change="handleKirimChange(entry.day, index, $event)" :disabled="entry.pilih === '' || entry.pilih === 'OFF'" /> Kirim Barang
-            </label>
           </div>
           <input type="text" :name="`input-keterangan-${entry.date}-${entry.no}`" class="selectcustom" v-if="entry.pilih === 'OFF'" @change="handleKeterangan(entry.day, index, $event)" :value="entry.ket" placeholder="Keterangan"  />
           <select class="selectcustom" :name="`select-store-${entry.date}-${entry.no}`" @change="handleStoreChange(entry.day, index, $event)" :disabled="entry.pilih === ''" :hidden="entry.pilih === 'OFF'" >
             <option value="" hidden>Select Store</option>
             <option v-for="item in (entry.pilih === 'Normal' ? normalStores : perbantuanStores)" :key="item" :value="item">{{ item }}</option>
           </select>
-          <select class="selectcustom" :name="`select-schedule-${entry.date}-${entry.no}`" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === 'OFF' || entry.store === ''" >
+          <div class="time-picker-group">
+            <select class="selectcustom" :name="`select-schedule-${entry.date}-${entry.no}`" @change="handleScheduleChange(entry.day, index, $event)" :hidden="entry.store === 'OFF' || entry.store === ''" >
             <option value="" hidden>Select Schedule</option>
             <option value="P">P</option>
             <option value="S">S</option>
             <option value="M">M</option>
             <option value="INV">INV</option>
           </select>
-          <div class="time-picker-group">
             <input type="time" class="selectcustom" :name="`time-masuk-${entry.date}-${entry.no}`" @change="handleMasukChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" />
             <input type="time" class="selectcustom" :name="`time-pulang-${entry.date}-${entry.no}`" @change="handlePulangChange(entry.day, index, $event)" :hidden="entry.schedule === 'OFF' || entry.store === ''" step="3600" />
           </div>
+          <label class="checkbox-label"  :disabled="entry.pilih === 'OFF'">
+              <input type="checkbox" :name="`checkbox-kirim-${entry.date}-${entry.no}`" @change="handleKirimChange(entry.day, index, $event)" :disabled="entry.pilih === '' || entry.pilih === 'OFF'" /> Kirim Barang
+            </label>
           <button class="removeButton" @click="removeEntry(`*-${entry.date}-${entry.no}`)">X</button>
         </div>
         <button class="addButton" @click="addEntry(day)" :disabled="isAddButtonDisabled(day)">+</button>
@@ -407,6 +407,38 @@ export default {
   font-size: 16px;
 }
 
+.checkbox-label {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  border-color: #007bff;
+  background-color: #007bff;
+}
+
+.checkbox-label input[type="checkbox"]:checked::after {
+  content: '\2713'; /* Tanda centang */
+  color: white;
+  font-size: 14px;
+  position: relative;
+  left: 3px;
+  top: -2px;
+}
+
 .labelcustom {
   width: 100%;
   padding: 10px;
@@ -479,37 +511,6 @@ export default {
 .radio-label input[type="radio"]:checked {
   border-color: #007bff;
   background-color: #007bff;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"]:checked {
-  border-color: #007bff;
-  background-color: #007bff;
-}
-
-.checkbox-label input[type="checkbox"]:checked::after {
-  content: '\2713'; /* Tanda centang */
-  color: white;
-  font-size: 14px;
-  position: relative;
-  left: 3px;
-  top: -2px;
 }
 
 .time-picker-group {
